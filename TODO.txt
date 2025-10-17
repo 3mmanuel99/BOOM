@@ -1,0 +1,7 @@
+- Look into hash tables for passwords
+- Figure out how to set up WebSockets for real-time connection 
+    - APIs?
+- Look into queue implementation for when game rooms are full (position in line)
+- Look into log-in systems.
+- Database optimisation
+    - Sharding...?
