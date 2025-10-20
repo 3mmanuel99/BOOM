@@ -1,5 +1,5 @@
 import { queries } from "../database/database.ts";
-// import { questionIdGenerator } from "../utility/idGeneration.ts";
+import { questionIdGenerator } from "../utility/idGeneration.ts";
 
 
 export interface Question {
@@ -49,7 +49,17 @@ export async function getQuestion(properties: Partial<Question>): Promise<object
 
 // POST api/question/:userID 
 // todo: continue this...
-export async function createQuestion(properties: Partial<Question>): Promise<string> {
+// return type is Promise<string> btw
+export async function createQuestion(properties: Partial<Question>) {
+
+    const questionInfo: Partial<Question> = {
+        question: properties.question,
+        questionID: properties.questionID ?? questionIdGenerator(),
+        createdByUserID: properties.createdByUserID,
+        phaseNum: properties.phaseNum,
+        createdAt: properties.createdAt,
+        options: properties.options
+    }
     const result = await queries
         .from("UGQuestion")
         .insert("UGQuestionID, UserID, PhaseNum, QnCreatedAt, Answers, Question") 

@@ -6,6 +6,9 @@ import { getUser, User } from "./user.ts";
 const HTTP_PORT = 3000;
 const app = express();
 
+// hi future me, could you implement the user system once and for all
+// so it becomes less of a pain to handle user-related stuff in the future?
+// thanks.
 
 app.get("/", (_req: any, res: { send: (arg0: string) => void; }) => {
     res.send("Hello world! (I hope I can complete my coursework on time...)");
