@@ -11,20 +11,6 @@ export interface Question {
     options: object
 }
 
-/*
-function _createQuestionFactoryFunc(data: Partial<Question>): object
-{
-    return {
-        question: data.question,
-        questionId: data.questionID ?? questionIdGenerator(),
-        createdByUserID: data.createdByUserID,
-        phaseNum: data.phaseNum,
-        createdAt: data.createdAt,
-        options: data.options
-    };
-}
-*/
-
 // GET api/question/:questionID
 export async function getQuestion(properties: Partial<Question>): Promise<object | undefined> {
     const result = await queries
@@ -52,7 +38,7 @@ export async function getQuestion(properties: Partial<Question>): Promise<object
 // return type is Promise<string> btw
 export async function createQuestion(properties: Partial<Question>) {
 
-    const questionInfo: Partial<Question> = {
+    const _questionInfo: Partial<Question> = {
         question: properties.question,
         questionID: properties.questionID ?? questionIdGenerator(),
         createdByUserID: properties.createdByUserID,
@@ -60,9 +46,10 @@ export async function createQuestion(properties: Partial<Question>) {
         createdAt: properties.createdAt,
         options: properties.options
     }
-    const result = await queries
+    const _result = await queries
         .from("UGQuestion")
         .insert("UGQuestionID, UserID, PhaseNum, QnCreatedAt, Answers, Question") 
+    // ...
              
 }
 /*

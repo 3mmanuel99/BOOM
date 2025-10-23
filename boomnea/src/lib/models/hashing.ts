@@ -7,7 +7,7 @@ class Node {
         this.next = null;
     }
 
-    insertAtFront(head, x)
+    insert(head, position, )
 
     
 }

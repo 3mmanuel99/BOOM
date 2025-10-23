@@ -5,23 +5,8 @@ export interface User {
     userID: string,
     username: string,
     password: string,
-    userCreatedAt: Date
+    createdAt: Date
 }
-
-// creates a user account
-/*
-export async function createUser(username: string, password: string): Promise<string> {
-    // todo: use hashing algorithm for passwords so they can be stored safely (WIP)
-    // ...
-    await queries(`
-        INSERT INTO 
-        "User" 
-        (UserID, Username, Password, CreatedAt) 
-        VALUES ($1, $2, $3, $4)`, 
-        [userIdGeneration(), username, password, Date.now()]);
-    return "User created successfully.";
-}
-*/
 
 // fetches only one user in specific
 export async function getUser(properties: Partial<User>): Promise<object | undefined>
@@ -33,7 +18,7 @@ export async function getUser(properties: Partial<User>): Promise<object | undef
         const userInfo = {
             userId: properties.userID,
             username: properties.username,
-            userCreatedAt: properties.userCreatedAt
+            createdAt: properties.createdAt
         };
         return userInfo;
     } else {
