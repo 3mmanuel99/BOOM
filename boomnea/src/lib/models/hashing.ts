@@ -1,3 +1,4 @@
+/*
 class Node {
     data: string;
     next: null;
@@ -52,3 +53,4 @@ class Hashing {
         this.table[index] = ""
     }
 }
+*/

@@ -1,6 +1,5 @@
 import { queries } from "../database/database.ts";
-import { questionIdGenerator } from "../utility/idGeneration.ts";
-
+import { IDGenerators } from "../utility/idGeneration.ts";
 
 export interface Question {
     question: string
@@ -37,10 +36,11 @@ export async function getQuestion(properties: Partial<Question>): Promise<object
 // todo: continue this...
 // return type is Promise<string> btw
 export async function createQuestion(properties: Partial<Question>) {
+    const questionIdGen = IDGenerators.questionIdGenerator();
 
     const _questionInfo: Partial<Question> = {
         question: properties.question,
-        questionID: properties.questionID ?? questionIdGenerator(),
+        questionID: properties.questionID ?? questionIdGen,
         createdByUserID: properties.createdByUserID,
         phaseNum: properties.phaseNum,
         createdAt: properties.createdAt,
