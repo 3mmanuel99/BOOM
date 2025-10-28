@@ -12,7 +12,9 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
 	"dependencies": {
+		"@types/body-parser": "^1.19.6",
 		"@types/express": "^5.0.3",
+		"bcrypt": "^6.0.0",
 		"dotenv": "^17.2.2",
 		"express": "^5.1.0",
 		"pg": "^8.16.3"

@@ -1,8 +1,6 @@
-function test(t: any): any {
-    return typeof t;
-}
-function test2<Type>(t: Type) {
-    return typeof t;
-}
+import bcrypt from "bcrypt";
 
-console.log(test2("hi"))
+const salt = await bcrypt.genSalt(8);
+const h = await bcrypt.hash("test", salt)
+console.log(salt);
+console.log(h);
