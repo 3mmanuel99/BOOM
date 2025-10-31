@@ -3,7 +3,6 @@ import { IDGenerators } from "../utility/idGeneration.ts";
 import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
 import bcrypt from "bcrypt";
 
-
 export interface UserInterface {
     userID: string,
     username: string,
@@ -18,22 +17,24 @@ export class User {
             .select("Username")
             .eq("Username", properties.username);
         
-        if (checkExistingUser.data?.[0]) {
+        if (checkExistingUser.data?.[0] !== undefined) {
             return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
         } else {
             const salt: string  = await bcrypt.genSalt(10);
             const hash: string  = await bcrypt.hash(properties.password, salt)
-
             const userIDGen: string = IDGenerators.userIdGeneration();
-            await queries
+            const date = new Date();
+
+
+            const _userQuery = await queries
                 .from("User")
                 .insert({
                     UserID: userIDGen,
                     Username: properties.username,
                     Password: hash,
-                    CreatedAt: Date.now()
+                    CreatedAt: date
                 });
-            return HTTP_STATUS_CODES.HTTP_OK;
+            return HTTP_STATUS_CODES.HTTP_CREATED;
         }
     }
     // fetches only one user in specific
@@ -54,7 +55,7 @@ export class User {
         }
     }
     static async deleteUser(properties: Partial<UserInterface>) {
-        const result = await queries
+        const _result = await queries
         .from("User")
         .delete()
         .eq("Password", properties.password)

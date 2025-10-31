@@ -1,6 +1,11 @@
-import bcrypt from "bcrypt";
+import { queries } from "../database/database.ts";
 
-const salt = await bcrypt.genSalt(8);
-const h = await bcrypt.hash("test", salt)
-console.log(salt);
-console.log(h);
+const thing = await queries
+    .from("User")
+    .insert({
+        UserID: "69696969",
+        Username: "emmanuel",
+        Password: "69420",
+        CreatedAt: new Date()
+    })
+console.log(thing)

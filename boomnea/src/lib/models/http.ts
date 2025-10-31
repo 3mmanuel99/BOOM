@@ -9,18 +9,11 @@ import bodyParser from "body-parser";
 const HTTP_PORT = 3000;
 const app = express();
 
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-    extended: true
+    extended: false
 }));
-app.use(express.urlencoded());
-app.use(express.json());
+app.use(bodyParser.json());
 
-
-
-// hi future me, could you implement the user system once and for all
-// so it becomes less of a pain to handle user-related stuff in the future?
-// thanks.
 
 app.get("/", (_req: any, res: { send: (arg0: string) => void; }) => {
     res.send("Hello world! (I hope I can complete my coursework on time...)");
@@ -50,22 +43,20 @@ app.get("/api/question/:questionID", async (req: any, res: any) => {
         const getQuestionQuery = await getQuestion(questionInterfaceProperties);
         if (!getQuestionQuery)
         {
-            res.status(404).send({
+            res.status(HTTP_STATUS_CODES.HTTP_NOT_FOUND).send({
                 error: "Question not found."
             });
         }
         res.send(getQuestionQuery);
     } catch (err: unknown) {
-        res.status(500).send({
+        res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
             error: `Internal Server Error! (${err})`
         });
     }
 })
 
-// put these on their respective files, i am leaving them in http.ts for now.
-
 // POST /api/user/register
-app.post("api/user/register", async (req: any, res: any) => {
+app.post("/api/user/register", async (req: any, res: any) => {
     try {
         const user = await User.registerUser({
             username: req.body.username,
@@ -73,17 +64,16 @@ app.post("api/user/register", async (req: any, res: any) => {
         });
 
         if (user === HTTP_STATUS_CODES.HTTP_BAD_REQUEST) {
-            return res.status(HTTP_STATUS_CODES.HTTP_BAD_REQUEST).send({
+            res.status(HTTP_STATUS_CODES.HTTP_BAD_REQUEST).send({
                 error: "User already exists."
             });
-        } else if (user === HTTP_STATUS_CODES.HTTP_OK) {
-            return res.status(HTTP_STATUS_CODES.HTTP_CREATED).send({
+        } else if (user === HTTP_STATUS_CODES.HTTP_CREATED) {
+            res.status(HTTP_STATUS_CODES.HTTP_CREATED).send({
                 message: "User created successfully."
             });
         }
-        console.log(user)
     } catch (error: unknown) {
-        return res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
+        res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
             error: `Internal Server Error! ${error}`
         });
     }
