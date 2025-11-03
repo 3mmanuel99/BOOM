@@ -2,6 +2,7 @@ import { queries } from "../database/database.ts";
 import { IDGenerators } from "../utility/idGeneration.ts";
 import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export interface UserInterface {
     userID: string,
@@ -26,7 +27,7 @@ export class User {
             const date = new Date();
 
 
-            const _userQuery = await queries
+            const userQuery = await queries
                 .from("User")
                 .insert({
                     UserID: userIDGen,
@@ -34,7 +35,34 @@ export class User {
                     Password: hash,
                     CreatedAt: date
                 });
-            return HTTP_STATUS_CODES.HTTP_CREATED;
+            if (!userQuery.error) {
+                return HTTP_STATUS_CODES.HTTP_CREATED;
+            } else {
+                throw new Error(`${userQuery.error}`)
+            }
+        }
+    }
+
+    static async loginUser(properties: Partial<UserInterface>) {
+        const checkExistingUser = await queries
+            .from("User")
+            .select(`Username, Password`)
+            .eq("Username", properties.username);
+        
+        if (checkExistingUser.data?.[0] === undefined) {
+            return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
+        } else {
+            const passwordMatch = await bcrypt.compare(properties.password, checkExistingUser.data?.[0]["Password"])
+
+            if (!passwordMatch) {
+                return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
+            }
+
+            const token = jwt.sign({
+                username: properties.username,
+            }, 'secret')
+
+            return token;     
         }
     }
     // fetches only one user in specific
@@ -49,9 +77,9 @@ export class User {
                 username: properties.username,
                 createdAt: properties.createdAt
             };
-        return userInfo;
+            return userInfo;
         } else {
-        return undefined;
+            return undefined;
         }
     }
     static async deleteUser(properties: Partial<UserInterface>) {
