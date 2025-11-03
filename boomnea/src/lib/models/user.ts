@@ -71,6 +71,7 @@ export class User {
         const result = await queries
             .from("User")
             .select("UserID, Username, CreatedAt");
+
         if (result.data?.[0]) {
             const userInfo = {
                 userId: properties.userID,
@@ -82,10 +83,25 @@ export class User {
             return undefined;
         }
     }
+    // note to self: implement updating user (username OR password) and deleting them (needs password auth obviously)
     static async deleteUser(properties: Partial<UserInterface>) {
-        const _result = await queries
-        .from("User")
-        .delete()
-        .eq("Password", properties.password)
+        const checkExistingUser = await queries
+            .from("User")
+            .select("Username, Password")
+            .eq("Username", properties.username);
+    
+        if (checkExistingUser.data?.[0] === undefined) {
+            return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
+        } else {
+            const password = bcrypt.compare(properties.password, checkExistingUser.data?.[0]["Password"]);
+
+            if (!password) {
+                return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
+            }
+
+            const deleteUser = await queries
+            
+        }
     }
+
 }

@@ -1,10 +1,9 @@
 // deno-lint-ignore-file no-explicit-any
 import express from "express";
+import bodyParser from "body-parser";
 import { getQuestion, Question } from "./question.ts";
 import { User } from "./user.ts";
 import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
-import { queries } from "../database/database.ts";
-import bodyParser from "body-parser";
 
 const HTTP_PORT = 3000;
 const app = express();
@@ -19,28 +18,14 @@ app.get("/", (_req: any, res: { send: (arg0: string) => void; }) => {
     res.send("Hello world! (I hope I can complete my coursework on time...)");
 });
 
-// todo: POST api/question/...
-/*
-app.post("api/question/:userID", async (req: any, _res: any) => {
-    try {
-        const userIDParam = req.params["userID"];
-        const _createQuestionQUery = await createQUestion(userIDParam);
-        // ...
-    } catch {
-        // ...
-    }
-})
-*/
-
-
 // GET api/question/:questionID
 app.get("/api/question/:questionID", async (req: any, res: any) => {
     try {
-        const questionIDParam = req.params["questionID"];
+        const questionIDParam: string = req.params["questionID"];
         const questionInterfaceProperties: Partial<Question> = {
             questionID: questionIDParam
         }
-        const getQuestionQuery = await getQuestion(questionInterfaceProperties);
+        const getQuestionQuery: object | undefined = await getQuestion(questionInterfaceProperties);
         if (!getQuestionQuery)
         {
             res.status(HTTP_STATUS_CODES.HTTP_NOT_FOUND).send({
@@ -53,24 +38,27 @@ app.get("/api/question/:questionID", async (req: any, res: any) => {
             error: `Internal Server Error! (${err})`
         });
     }
-})
+});
 
 // POST /api/user/register
 app.post("/api/user/register", async (req: any, res: any) => {
     try {
-        const user = await User.registerUser({
+        const userRegistration: User = await User.registerUser({
             username: req.body.username,
             password: req.body.password
         });
 
-        if (user === HTTP_STATUS_CODES.HTTP_BAD_REQUEST) {
-            res.status(HTTP_STATUS_CODES.HTTP_BAD_REQUEST).send({
-                error: "User already exists."
-            });
-        } else if (user === HTTP_STATUS_CODES.HTTP_CREATED) {
-            res.status(HTTP_STATUS_CODES.HTTP_CREATED).send({
-                message: "User created successfully."
-            });
+        switch (userRegistration) {
+            case HTTP_STATUS_CODES.HTTP_BAD_REQUEST:
+                res.status(HTTP_STATUS_CODES.HTTP_BAD_REQUEST).send({
+                    error: "User already exists."
+                });
+                break;
+            case HTTP_STATUS_CODES.HTTP_CREATED:
+                res.status(HTTP_STATUS_CODES.HTTP_CREATED).send({
+                    message: "User created successfully."
+                });
+                break;
         }
     } catch (error: unknown) {
         res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
@@ -79,39 +67,41 @@ app.post("/api/user/register", async (req: any, res: any) => {
     }
 });
 
-app.post("api/user/login", async (req: any, res: any) => {
+app.post("/api/user/login", async (req: any, res: any) => {
     try {
-        const user = await queries
-            .from("User")
-            .select("Username")
-            .eq("Username", req.body.username)
-        if (!user.data?.[0]) {
-            res.status(401).send({
-                error: "Invalid credentials"
-            });
-        } 
+        const userLogin: User = await User.loginUser({
+            username: req.body.username,
+            password: req.body.password
+        });
 
-        const passwordMatch = await queries
-            .from("User")
-            .select("Password")
-            .eq("Password", req.body.password);
-
-        if (!passwordMatch.data?.[0]) {
-            res.status(401).send({
-                error: "Invalid credentials"
-            });
+        switch (userLogin) {
+            case HTTP_STATUS_CODES.HTTP_BAD_REQUEST:
+                res.status(HTTP_STATUS_CODES.HTTP_BAD_REQUEST).send({
+                    error: "User does not exist."
+                });
+                break;
+            case HTTP_STATUS_CODES.HTTP_UNAUTHORISED:
+                res.status(HTTP_STATUS_CODES.HTTP_UNAUTHORISED).send({
+                    error: "Incorrect password."
+                });
+                break;
+            default:
+                res.status(HTTP_STATUS_CODES.HTTP_OK).send({
+                    message: userLogin
+                });
+                break;
         }
-    } catch (err: unknown) {
-        res.status(500).send({
-            error: `Internal Server Error: ${err}`
-        })
+    } catch (error: unknown) {
+        res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
+            error: `Internal Server Error! ${error}`
+        });
     }
-})
+});
 
 // GET api/user/:userID
 app.get("/api/user/:userID", async (req: any, res: any) => {
     try {
-        const userIDParams = req.params["userID"];
+        const userIDParams: string = req.params["userID"];
         const userInterfaceProperties: Partial<User> = {
             userID: userIDParams
         };
@@ -127,8 +117,14 @@ app.get("/api/user/:userID", async (req: any, res: any) => {
             error: `Internal Server Error! (${err})`
         });
     }
+});
+
+// PUT api/user/update
+// DELETE api/user/delete
+app.delete("/api/user/:userID", async (req: any, res: any) => {
+    
 })
 
 app.listen(HTTP_PORT, () => {
     console.log(`Now listening on port ${HTTP_PORT}!`);
-})
+});

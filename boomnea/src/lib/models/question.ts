@@ -34,6 +34,7 @@ export async function getQuestion(properties: Partial<Question>): Promise<object
 
 // POST api/question/:userID 
 // todo: continue this...
+// user auth?
 // return type is Promise<string> btw
 export async function createQuestion(properties: Partial<Question>) {
     const questionIdGen = IDGenerators.questionIdGenerator();
@@ -52,31 +53,3 @@ export async function createQuestion(properties: Partial<Question>) {
     // ...
              
 }
-/*
-export async function createQUestion(attributes: Question) {
-    // ** attributes.createdByUserID 
-    // ** is passed twice as we 
-    // ** need to check whether the 
-    // ** user exists on the Users table.
-    const question: object = createQuestionFactoryFunc({
-        question: attributes.question,
-        questionID: attributes.questionID,
-        createdByUserID: attributes.createdByUserID,
-        phaseNum: attributes.phaseNum,
-        createdAt: attributes.createdAt,
-        options: attributes.options
-    })
-    const _result = await queries(`
-        IF EXISTS (SELECT UserID FROM Users WHERE UserID = $1) BEGIN
-        INSERT INTO
-        "UGQuestion"
-        VALUES
-        ($2, $3, $4, $5, $6, $7)
-        END
-        `, []
-        )
-    return;
-}
-*/
-// DELETE api/question/:questionID/:userID ...
-// PUT api/question/:questionID/:userID...
