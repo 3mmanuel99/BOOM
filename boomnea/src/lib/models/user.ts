@@ -13,12 +13,12 @@ export interface UserInterface {
 
 export class User {
     static async registerUser(properties: Partial<UserInterface>): Promise<number> {
-        const checkExistingUser = await queries
+        const {data} = await queries
             .from("User")
             .select("Username")
             .eq("Username", properties.username);
         
-        if (checkExistingUser.data?.[0] !== undefined) {
+        if (data?.[0] !== undefined) {
             return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
         } else {
             const salt: string  = await bcrypt.genSalt(10);
@@ -27,7 +27,7 @@ export class User {
             const date = new Date();
 
 
-            const userQuery = await queries
+            const {error} = await queries
                 .from("User")
                 .insert({
                     UserID: userIDGen,
@@ -35,24 +35,24 @@ export class User {
                     Password: hash,
                     CreatedAt: date
                 });
-            if (!userQuery.error) {
+            if (!error) {
                 return HTTP_STATUS_CODES.HTTP_CREATED;
             } else {
-                throw new Error(`${userQuery.error}`)
+                throw new Error(`${error}`)
             }
         }
     }
 
     static async loginUser(properties: Partial<UserInterface>) {
-        const checkExistingUser = await queries
+        const {data} = await queries
             .from("User")
             .select(`Username, Password`)
             .eq("Username", properties.username);
         
-        if (checkExistingUser.data?.[0] === undefined) {
+        if (!data?.[0]) {
             return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
         } else {
-            const passwordMatch = await bcrypt.compare(properties.password, checkExistingUser.data?.[0]["Password"])
+            const passwordMatch = await bcrypt.compare(properties.password, data?.[0]["Password"])
 
             if (!passwordMatch) {
                 return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
@@ -68,15 +68,16 @@ export class User {
     // fetches only one user in specific
     static async getUser(properties: Partial<UserInterface>): Promise<object | undefined>
     {
-        const result = await queries
+        const {data} = await queries
             .from("User")
-            .select("UserID, Username, CreatedAt");
+            .select("UserID, Username, CreatedAt")
+            .eq("Username", properties.username)
 
-        if (result.data?.[0]) {
+        if (data?.[0]) {
             const userInfo = {
-                userId: properties.userID,
-                username: properties.username,
-                createdAt: properties.createdAt
+                userId: data?.[0].UserID,
+                username: data?.[0].Username,
+                createdAt: data?.[0].CreatedAt
             };
             return userInfo;
         } else {
@@ -84,29 +85,40 @@ export class User {
         }
     }
     // note to self: implement updating user (username OR password) and deleting them (needs password auth obviously)
+    static async updateUser(properties: Partial<UserInterface>) {
+        const {data} = await queries
+            .from("User")
+            .select("Username, Password")
+            .eq("Username", properties.username)
+        if (!data?.[0]) {
+            return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
+        } else {
+            // ... the magic stuff happens here
+        }
+    }
     static async deleteUser(properties: Partial<UserInterface>) {
-        const checkExistingUser = await queries
+        const {data} = await queries
             .from("User")
             .select("Username, Password")
             .eq("Username", properties.username);
     
-        if (checkExistingUser.data?.[0] === undefined) {
+        if (!data?.[0]) {
             return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
         } else {
-            const password = bcrypt.compare(properties.password, checkExistingUser.data?.[0]["Password"]);
+            const password = bcrypt.compare(properties.password, data?.[0]["Password"]);
 
             if (!password) {
                 return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
             }
 
-            const deleteUser = await queries
+            const {error} = await queries
                 .from("User")
                 .delete()
                 .eq("Username", properties.username)
-            if (deleteUser.error) {
-                throw new Error(`${deleteUser.error}`);
+            if (error) {
+                throw new Error(`${error}`);
             } else {
-                return HTTP_STATUS_CODES.HTTP_NO_CONTENT;
+                return HTTP_STATUS_CODES.HTTP_OK;
             }
         }
     }

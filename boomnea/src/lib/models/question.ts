@@ -12,19 +12,19 @@ export interface Question {
 
 // GET api/question/:questionID
 export async function getQuestion(properties: Partial<Question>): Promise<object | undefined> {
-    const result = await queries
+    const {data} = await queries
         .from("UGQuestion")
         .select("UGQuestionID, UserID, PhaseNum, QnCreatedAt, Question, Answers")
         .eq("UGQuestionID", properties.questionID);  
     // ** if there is a record in the database
-    if (result.data?.[0]) {
+    if (data?.[0]) {
         const questionInfo = {
-            question: result.data?.[0]["Question"],
-            questionId: result.data?.[0]["UGQuestionID"],
-            phaseNumber: result.data?.[0]["PhaseNum"],
-            createdBy: result.data?.[0]["UserID"],
-            createdAt: result.data?.[0]["QnCreatedAt"],
-            options: result.data?.[0]["Answers"]
+            question: data?.[0].Question,
+            questionId: data?.[0].UGQuestionID,
+            phaseNumber: data?.[0].PhaseNum,
+            createdBy: data?.[0].UserID,
+            createdAt: data?.[0].QnCreatedAt,
+            options: data?.[0].Answers
         };
         return questionInfo;
     } else {

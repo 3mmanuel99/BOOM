@@ -100,19 +100,21 @@ app.post("/api/user/login", async (req: any, res: any) => {
 });
 
 // GET api/user/:userID
-app.get("/api/user/:userID", async (req: any, res: any) => {
+app.get("/api/user/:username", async (req: any, res: any) => {
     try {
-        const userIDParams: string = req.params["userID"];
-        const userInterfaceProperties: Partial<User> = {
-            userID: userIDParams
-        };
-        const getUserQuery = await User.getUser(userInterfaceProperties);
+        const usernameParams: string = req.params["username"];
+        const getUserQuery = await User.getUser({
+            username: usernameParams
+        });
+
         if (!getUserQuery) {
             res.status(HTTP_STATUS_CODES.HTTP_NOT_FOUND).send({
                 error: "User not found."
             });
         }
-        res.send(getUserQuery);
+        res.status(HTTP_STATUS_CODES.HTTP_OK).send({
+            message: getUserQuery
+        })
     } catch (err: unknown) {
         res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
             error: `Internal Server Error! (${err})`
@@ -120,7 +122,8 @@ app.get("/api/user/:userID", async (req: any, res: any) => {
     }
 });
 
-// PUT api/user/update
+// PUT api/user/update#
+// ...
 // DELETE api/user/delete
 app.delete("/api/user/delete", async (req: any, res: any) => {
     try {
@@ -141,15 +144,15 @@ app.delete("/api/user/delete", async (req: any, res: any) => {
                     error: "Incorrect password."
                 });
                 break;
-            case HTTP_STATUS_CODES.HTTP_NO_CONTENT:
-                res.status(HTTP_STATUS_CODES.HTTP_NO_CONTENT).send({
+            case HTTP_STATUS_CODES.HTTP_OK:
+                res.status(HTTP_STATUS_CODES.HTTP_OK).send({
                     message: "User deleted successfully."
                 });
                 break;
         }
     } catch (error: unknown) {
         res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
-            message: `Internal Server Error! ${error}`
+            message: `Internal Server Error! (${error})`
         });
     }
 })
