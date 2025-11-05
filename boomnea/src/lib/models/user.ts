@@ -100,7 +100,14 @@ export class User {
             }
 
             const deleteUser = await queries
-            
+                .from("User")
+                .delete()
+                .eq("Username", properties.username)
+            if (deleteUser.error) {
+                throw new Error(`${deleteUser.error}`);
+            } else {
+                return HTTP_STATUS_CODES.HTTP_NO_CONTENT;
+            }
         }
     }
 
