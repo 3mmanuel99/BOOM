@@ -88,7 +88,7 @@ app.post("/api/user/login", async (req: any, res: any) => {
                 break;
             default:
                 res.status(HTTP_STATUS_CODES.HTTP_OK).send({
-                    message: userLogin
+                    userLogin
                 });
                 break;
         }
@@ -107,14 +107,15 @@ app.get("/api/user/:username", async (req: any, res: any) => {
             username: usernameParams
         });
 
-        if (!getUserQuery) {
+        if (getUserQuery === HTTP_STATUS_CODES.HTTP_NOT_FOUND) {
             res.status(HTTP_STATUS_CODES.HTTP_NOT_FOUND).send({
                 error: "User not found."
             });
+        } else {
+            res.status(HTTP_STATUS_CODES.HTTP_OK).send({
+                info: getUserQuery
+            })
         }
-        res.status(HTTP_STATUS_CODES.HTTP_OK).send({
-            message: getUserQuery
-        })
     } catch (err: unknown) {
         res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
             error: `Internal Server Error! (${err})`
@@ -122,8 +123,10 @@ app.get("/api/user/:username", async (req: any, res: any) => {
     }
 });
 
-// PUT api/user/update#
-// ...
+// PUT api/user/update
+app.put("api/user/update", async (_req: any, _res: any) => {
+    // ...
+})
 // DELETE api/user/delete
 app.delete("/api/user/delete", async (req: any, res: any) => {
     try {

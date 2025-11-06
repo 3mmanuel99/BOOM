@@ -66,25 +66,42 @@ export class User {
         }
     }
     // fetches only one user in specific
-    static async getUser(properties: Partial<UserInterface>): Promise<object | undefined>
+    static async getUser(properties: Partial<UserInterface>): Promise<object | number>
     {
         const {data} = await queries
             .from("User")
             .select("UserID, Username, CreatedAt")
             .eq("Username", properties.username)
 
-        if (data?.[0]) {
+        if (!data?.[0]) {
+            return HTTP_STATUS_CODES.HTTP_NOT_FOUND;
+        } else {
             const userInfo = {
                 userId: data?.[0].UserID,
                 username: data?.[0].Username,
-                createdAt: data?.[0].CreatedAt
+                createdAt: data?.[0].CreatedAt,
+                questionsCreated: [{}],
             };
+
+            const questionInfo = await queries
+                .from("UGQuestion")
+                .select("UGQuestionID, Question, PhaseNumber, CreatedAt, Option")
+                .eq("CreatedBy", data?.[0].UserID)
+
+            if (questionInfo.data) {
+                for (let idx = 0; idx < questionInfo.data!.length; idx++) {
+                    userInfo.questionsCreated[idx] = questionInfo.data?.[idx];
+                }
+            } else {
+                userInfo.questionsCreated = []; // no questions created by a specified user found
+            }
+
             return userInfo;
-        } else {
-            return undefined;
-        }
+
+        } 
     }
     // note to self: implement updating user (username OR password) and deleting them (needs password auth obviously)
+    // note to self: PUT requests either return HTTP status code of 200 (OK) or 204 (no content)
     static async updateUser(properties: Partial<UserInterface>) {
         const {data} = await queries
             .from("User")
@@ -105,7 +122,7 @@ export class User {
         if (!data?.[0]) {
             return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
         } else {
-            const password = bcrypt.compare(properties.password, data?.[0]["Password"]);
+            const password = bcrypt.compare(properties.password, data?.[0].Password);
 
             if (!password) {
                 return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
