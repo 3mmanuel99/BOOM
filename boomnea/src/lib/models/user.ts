@@ -4,7 +4,7 @@ import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-export interface UserInterface {
+interface UserInterface {
     userID: string,
     username: string,
     password: string,
@@ -18,7 +18,7 @@ export class User {
             .select("Username")
             .eq("Username", properties.username);
         
-        if (data?.[0] !== undefined) {
+        if (data?.[0]) {
             return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
         } else {
             const salt: string  = await bcrypt.genSalt(10);

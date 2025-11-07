@@ -1,7 +1,9 @@
 import { queries } from "../database/database.ts";
+import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
 import { IDGenerators } from "../utility/idGeneration.ts";
 
-export interface Question {
+
+interface QuestionInterface {
     question: string
     questionID: string,
     createdByUserID: string,
@@ -10,46 +12,50 @@ export interface Question {
     options: object
 }
 
-// GET api/question/:questionID
-export async function getQuestion(properties: Partial<Question>): Promise<object | undefined> {
-    const {data} = await queries
-        .from("UGQuestion")
-        .select("UGQuestionID, UserID, PhaseNum, QnCreatedAt, Question, Answers")
-        .eq("UGQuestionID", properties.questionID);  
-    // ** if there is a record in the database
-    if (data?.[0]) {
-        const questionInfo = {
-            question: data?.[0].Question,
-            questionId: data?.[0].UGQuestionID,
-            phaseNumber: data?.[0].PhaseNum,
-            createdBy: data?.[0].UserID,
-            createdAt: data?.[0].QnCreatedAt,
-            options: data?.[0].Answers
-        };
-        return questionInfo;
-    } else {
-        return undefined;
+export class Question {
+    static async getQuestion(properties: Partial<QuestionInterface>): Promise<object | number> {
+        const {data} = await queries
+            .from("UGQuestion")
+            .select("UGQuestionID, UserID, PhaseNum, QnCreatedAt, Question, Answers")
+            .eq("UGQuestionID", properties.questionID);  
+        // ** if there is a record in the database
+        if (data?.[0]) {
+            const questionInfo = {
+                question: data?.[0].Question,
+                questionId: data?.[0].UGQuestionID,
+                phaseNumber: data?.[0].PhaseNum,
+                createdBy: data?.[0].UserID,
+                createdAt: data?.[0].QnCreatedAt,
+                options: data?.[0].Answers
+            };
+            return questionInfo;
+        } else {
+            return HTTP_STATUS_CODES.HTTP_NOT_FOUND;
+        }
     }
-}
 
-// POST api/question/:userID 
-// todo: continue this...
-// user auth?
-// return type is Promise<string> btw
-export async function createQuestion(properties: Partial<Question>) {
-    const questionIdGen = IDGenerators.questionIdGenerator();
+    
+    // todo: continue this...
+    // user auth? (completed, now you need to implement the ability to create questions with user logins)
+    // UPDATE: return type is Promise<number> because now we return http status codes
+    static async createQuestion(_properties: Partial<QuestionInterface>) {
+        const questionIdGen = IDGenerators.questionIdGenerator();
+        const date = new Date();
 
-    const _questionInfo: Partial<Question> = {
-        question: properties.question,
-        questionID: properties.questionID ?? questionIdGen,
-        createdByUserID: properties.createdByUserID,
-        phaseNum: properties.phaseNum,
-        createdAt: properties.createdAt,
-        options: properties.options
+    
+        // "UGQuestionID, UserID, PhaseNum, QnCreatedAt, Answers, Question"
+        const _questionCreate = await queries
+            .from("UGQuestion")
+            .insert({
+                UGQuestionID: questionIdGen,
+                UserID: "",
+                PhaseNum: "",
+                QnCreatedAt: date,
+                Answers: "",
+                Question: ""
+            }) 
+            
+                 
     }
-    const _result = await queries
-        .from("UGQuestion")
-        .insert("UGQuestionID, UserID, PhaseNum, QnCreatedAt, Answers, Question") 
-    // ...
-             
+
 }

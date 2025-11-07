@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 import express from "express";
 import bodyParser from "body-parser";
-import { getQuestion, Question } from "./question.ts";
+import { Question } from "./question.ts";
 import { User } from "./user.ts";
 import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
 
@@ -22,17 +22,21 @@ app.get("/", (_req: any, res: { send: (arg0: string) => void; }) => {
 app.get("/api/question/:questionID", async (req: any, res: any) => {
     try {
         const questionIDParam: string = req.params["questionID"];
-        const questionInterfaceProperties: Partial<Question> = {
+        const getQuestionQuery: object | number = await Question.getQuestion({
             questionID: questionIDParam
+        });
+        switch (getQuestionQuery) {
+            case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
+                res.status(HTTP_STATUS_CODES.HTTP_NOT_FOUND).send({
+                    error: "Question not found"
+                });
+                break;
+            default:
+                res.status(HTTP_STATUS_CODES.HTTP_OK).send({
+                    message: getQuestionQuery
+                });
+                break;
         }
-        const getQuestionQuery: object | undefined = await getQuestion(questionInterfaceProperties);
-        if (!getQuestionQuery)
-        {
-            res.status(HTTP_STATUS_CODES.HTTP_NOT_FOUND).send({
-                error: "Question not found."
-            });
-        }
-        res.send(getQuestionQuery);
     } catch (err: unknown) {
         res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
             error: `Internal Server Error! (${err})`

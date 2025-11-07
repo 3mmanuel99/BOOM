@@ -21,7 +21,8 @@
     "npm:svelte-check@4": "4.3.3_svelte@5.42.2__acorn@8.15.0_typescript@5.9.3",
     "npm:svelte@5": "5.42.2_acorn@8.15.0",
     "npm:typescript@5": "5.9.3",
-    "npm:vite@^7.0.4": "7.1.11_picomatch@4.0.3"
+    "npm:vite@^7.0.4": "7.1.11_picomatch@4.0.3",
+    "npm:ws@^8.18.3": "8.18.3"
   },
   "jsr": {
     "@supabase/supabase-js@2.58.0": {
@@ -1309,7 +1310,8 @@
         "npm:svelte-check@4",
         "npm:svelte@5",
         "npm:typescript@5",
-        "npm:vite@^7.0.4"
+        "npm:vite@^7.0.4",
+        "npm:ws@^8.18.3"
       ]
     }
   }
