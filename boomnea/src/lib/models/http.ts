@@ -28,7 +28,7 @@ app.get("/api/question/:questionID", async (req: any, res: any) => {
         switch (getQuestionQuery) {
             case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
                 res.status(HTTP_STATUS_CODES.HTTP_NOT_FOUND).send({
-                    error: "Question not found"
+                    error: "Question not found."
                 });
                 break;
             default:
@@ -45,6 +45,7 @@ app.get("/api/question/:questionID", async (req: any, res: any) => {
 });
 
 // POST /api/user/register
+// todo: change bad request to CONFLICT
 app.post("/api/user/register", async (req: any, res: any) => {
     try {
         const userRegistration: User = await User.registerUser({
@@ -53,8 +54,8 @@ app.post("/api/user/register", async (req: any, res: any) => {
         });
 
         switch (userRegistration) {
-            case HTTP_STATUS_CODES.HTTP_BAD_REQUEST:
-                res.status(HTTP_STATUS_CODES.HTTP_BAD_REQUEST).send({
+            case HTTP_STATUS_CODES.HTTP_CONFLICT:
+                res.status(HTTP_STATUS_CODES.HTTP_CONFLICT).send({
                     error: "User already exists."
                 });
                 break;
@@ -80,9 +81,9 @@ app.post("/api/user/login", async (req: any, res: any) => {
         });
 
         switch (userLogin) {
-            case HTTP_STATUS_CODES.HTTP_BAD_REQUEST:
+            case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
                 res.status(HTTP_STATUS_CODES.HTTP_BAD_REQUEST).send({
-                    error: "User does not exist."
+                    error: "User not found."
                 });
                 break;
             case HTTP_STATUS_CODES.HTTP_UNAUTHORISED:
@@ -141,9 +142,9 @@ app.delete("/api/user/delete", async (req: any, res: any) => {
 
         switch (userDeletion)
         {
-            case HTTP_STATUS_CODES.HTTP_BAD_REQUEST:
-                res.status(HTTP_STATUS_CODES.HTTP_BAD_REQUEST).send({
-                    error: "User does not exist"
+            case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
+                res.status(HTTP_STATUS_CODES.HTTP_NOT_FOUND).send({
+                    error: "User not found."
                 });
                 break;
             case HTTP_STATUS_CODES.HTTP_UNAUTHORISED:

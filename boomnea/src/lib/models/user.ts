@@ -19,7 +19,7 @@ export class User {
             .eq("Username", properties.username);
         
         if (data?.[0]) {
-            return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
+            return HTTP_STATUS_CODES.HTTP_CONFLICT;
         } else {
             const salt: string  = await bcrypt.genSalt(10);
             const hash: string  = await bcrypt.hash(properties.password, salt)
@@ -50,7 +50,7 @@ export class User {
             .eq("Username", properties.username);
         
         if (!data?.[0]) {
-            return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
+            return HTTP_STATUS_CODES.HTTP_NOT_FOUND;
         } else {
             const passwordMatch = await bcrypt.compare(properties.password, data?.[0]["Password"])
 
@@ -108,7 +108,7 @@ export class User {
             .select("Username, Password")
             .eq("Username", properties.username)
         if (!data?.[0]) {
-            return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
+            return HTTP_STATUS_CODES.HTTP_NOT_FOUND;
         } else {
             // ... the magic stuff happens here
         }
@@ -120,7 +120,7 @@ export class User {
             .eq("Username", properties.username);
     
         if (!data?.[0]) {
-            return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
+            return HTTP_STATUS_CODES.HTTP_NOT_FOUND;
         } else {
             const password = bcrypt.compare(properties.password, data?.[0].Password);
 
