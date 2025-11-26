@@ -3,6 +3,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import { Question } from "./question.ts";
 import { User } from "./user.ts";
+import { WebSocketServer } from "ws";
 import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
 
 const HTTP_PORT = 3000;
@@ -13,7 +14,26 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
+const server = app.listen(HTTP_PORT, () => {
+    console.log(`Now listening on port ${HTTP_PORT}!`);
+});
+
+
+
+// Websockets
+const wss = new WebSocketServer({ server });
+
+wss.on("connection", (ws) => {
+    console.log("Websocket connected.")
+});
+
+wss.on("message", (data) => {
+    // ...
+})
+
+
 // GET /
+// please remove this once you are done testing. thank you.
 app.get("/", (_req: any, res: { send: (arg0: string) => void; }) => {
     res.send("Hello world! (I hope I can complete my coursework on time...)");
 });
@@ -112,14 +132,17 @@ app.get("/api/user/:username", async (req: any, res: any) => {
             username: usernameParams
         });
 
-        if (getUserQuery === HTTP_STATUS_CODES.HTTP_NOT_FOUND) {
-            res.status(HTTP_STATUS_CODES.HTTP_NOT_FOUND).send({
-                error: "User not found."
-            });
-        } else {
-            res.status(HTTP_STATUS_CODES.HTTP_OK).send({
-                info: getUserQuery
-            })
+        switch (getUserQuery) {
+            case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
+                res.status(HTTP_STATUS_CODES.HTTP_NOT_FOUND).send({
+                    error: "User not found."
+                });
+                break;
+            default:
+                res.status(HTTP_STATUS_CODES.HTTP_OK).send({
+                    info: getUserQuery
+                });
+                break;
         }
     } catch (err: unknown) {
         res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
@@ -129,8 +152,16 @@ app.get("/api/user/:username", async (req: any, res: any) => {
 });
 
 // PUT api/user/update
-app.put("api/user/update", async (_req: any, _res: any) => {
-    // ...
+app.put("api/user/update", async (req: any, _res: any) => {
+
+    enum RequestBody {
+        username = req.body.username,
+        newUsername = req.body.newUsername,
+        password = req.body.password,
+        newPassword = req.body.newPassword,
+        option = req.body.option
+    }
+
 })
 // DELETE api/user/delete
 app.delete("/api/user/delete", async (req: any, res: any) => {
@@ -164,7 +195,3 @@ app.delete("/api/user/delete", async (req: any, res: any) => {
         });
     }
 })
-
-app.listen(HTTP_PORT, () => {
-    console.log(`Now listening on port ${HTTP_PORT}!`);
-});

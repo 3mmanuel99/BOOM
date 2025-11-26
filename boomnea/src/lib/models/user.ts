@@ -8,6 +8,8 @@ interface UserInterface {
     userID: string,
     username: string,
     password: string,
+    newUsername: string,
+    newPassword: string,
     createdAt: Date
 }
 
@@ -43,7 +45,7 @@ export class User {
         }
     }
 
-    static async loginUser(properties: Partial<UserInterface>) {
+    static async loginUser(properties: Partial<UserInterface>): Promise<number | string> {
         const {data} = await queries
             .from("User")
             .select(`Username, Password`)
@@ -102,7 +104,7 @@ export class User {
     }
     // note to self: implement updating user (username OR password) and deleting them (needs password auth obviously)
     // note to self: PUT requests either return HTTP status code of 200 (OK) or 204 (no content)
-    static async updateUser(properties: Partial<UserInterface>) {
+    static async updateUser(properties: Partial<UserInterface>, option: string) {
         const {data} = await queries
             .from("User")
             .select("Username, Password")
@@ -110,10 +112,41 @@ export class User {
         if (!data?.[0]) {
             return HTTP_STATUS_CODES.HTTP_NOT_FOUND;
         } else {
-            // ... the magic stuff happens here
+            const passwordMatch = await bcrypt.compare(properties.password, data?.[0]["Password"])
+            if (!passwordMatch)
+            {
+                return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
+            }
+            switch (option.toLowerCase()) {
+                case "username": {
+                    const {error} = await queries
+                        .from("User")
+                        .update({Username:  properties.newUsername})
+
+                    if (!error) {
+                        return HTTP_STATUS_CODES.HTTP_OK;
+                    } else {
+                        throw new Error(`${error}`)
+                    }
+                    break;
+                }
+                case "password": {
+                    const salt: string  = await bcrypt.genSalt(10);
+                    const hash: string  = await bcrypt.hash(properties.password, salt)
+
+                    const {error} = await queries
+                        .from("User")
+                        .update({Password: hash})
+                    break;
+                }
+                default:
+                    return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
+
+            }
+
         }
     }
-    static async deleteUser(properties: Partial<UserInterface>) {
+    static async deleteUser(properties: Partial<UserInterface>): Promise<number> {
         const {data} = await queries
             .from("User")
             .select("Username, Password")
