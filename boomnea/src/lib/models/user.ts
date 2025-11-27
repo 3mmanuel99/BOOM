@@ -128,7 +128,6 @@ export class User {
                     } else {
                         throw new Error(`${error}`)
                     }
-                    break;
                 }
                 case "password": {
                     const salt: string  = await bcrypt.genSalt(10);
@@ -137,7 +136,11 @@ export class User {
                     const {error} = await queries
                         .from("User")
                         .update({Password: hash})
-                    break;
+                    if (!error) {
+                        return HTTP_STATUS_CODES.HTTP_OK;
+                    } else {
+                        throw new Error(`${error}`)
+                    }
                 }
                 default:
                     return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;

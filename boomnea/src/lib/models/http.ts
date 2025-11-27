@@ -3,7 +3,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import { Question } from "./question.ts";
 import { User } from "./user.ts";
-import { WebSocketServer } from "ws";
+// import { WebSocketServer } from "ws";
 import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
 
 const HTTP_PORT = 3000;
@@ -21,6 +21,7 @@ const server = app.listen(HTTP_PORT, () => {
 
 
 // Websockets
+/*
 const wss = new WebSocketServer({ server });
 
 wss.on("connection", (ws) => {
@@ -30,6 +31,7 @@ wss.on("connection", (ws) => {
 wss.on("message", (data) => {
     // ...
 })
+*/
 
 
 // GET /
@@ -152,17 +154,45 @@ app.get("/api/user/:username", async (req: any, res: any) => {
 });
 
 // PUT api/user/update
-app.put("api/user/update", async (req: any, _res: any) => {
+app.put("api/user/update/:option", async (req: any, res: any) => {
+    try {
+        const option: string = req.params["option"];
 
-    enum RequestBody {
-        username = req.body.username,
-        newUsername = req.body.newUsername,
-        password = req.body.password,
-        newPassword = req.body.newPassword,
-        option = req.body.option
+        const updateUserQuery = await User.updateUser({
+            username: req.body.username,
+            newUsername: req.body.newUsername,
+            password: req.body.password,
+            newPassword: req.body.newPassword,
+        }, option)
+
+        switch (updateUserQuery) {
+            case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
+                res.status(HTTP_STATUS_CODES.HTTP_NOT_FOUND).send({
+                    error: "User not found."
+                });
+                break;
+            case HTTP_STATUS_CODES.HTTP_UNAUTHORISED:
+                res.status(HTTP_STATUS_CODES.HTTP_UNAUTHORISED).send({
+                    error: "Incorrect password."
+                });
+                break;
+            case HTTP_STATUS_CODES.HTTP_BAD_REQUEST:
+                res.status(HTTP_STATUS_CODES.HTTP_BAD_REQUEST).send({
+                    error: "Invalid option parameter."
+                })
+                break;
+            case HTTP_STATUS_CODES.HTTP_OK:
+                res.status(HTTP_STATUS_CODES.HTTP_OK).send({
+                    message: "Information updates successfully."
+                })
+        }
+    } catch (err: unknown) {
+        res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
+            error: `Internal Server Error! (${err})`
+        })
     }
-
 })
+
 // DELETE api/user/delete
 app.delete("/api/user/delete", async (req: any, res: any) => {
     try {
