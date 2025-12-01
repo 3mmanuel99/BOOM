@@ -122,24 +122,26 @@ export class User {
                     const {error} = await queries
                         .from("User")
                         .update({Username:  properties.newUsername})
+                        .eq("Username", properties.username)
 
                     if (!error) {
                         return HTTP_STATUS_CODES.HTTP_OK;
                     } else {
-                        throw new Error(`${error}`)
+                        throw new Error(`${error.details}`)
                     }
                 }
                 case "password": {
                     const salt: string  = await bcrypt.genSalt(10);
-                    const hash: string  = await bcrypt.hash(properties.password, salt)
+                    const hash: string  = await bcrypt.hash(properties.newPassword, salt)
 
                     const {error} = await queries
                         .from("User")
                         .update({Password: hash})
+                        .eq("Username", properties.username)
                     if (!error) {
                         return HTTP_STATUS_CODES.HTTP_OK;
                     } else {
-                        throw new Error(`${error}`)
+                        throw new Error(`${error.message}`)
                     }
                 }
                 default:

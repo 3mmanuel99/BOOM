@@ -153,8 +153,8 @@ app.get("/api/user/:username", async (req: any, res: any) => {
     }
 });
 
-// PUT api/user/update
-app.put("api/user/update/:option", async (req: any, res: any) => {
+// PUT /api/user/update
+app.put("/api/user/update/:option", async (req: any, res: any) => {
     try {
         const option: string = req.params["option"];
 
@@ -183,8 +183,9 @@ app.put("api/user/update/:option", async (req: any, res: any) => {
                 break;
             case HTTP_STATUS_CODES.HTTP_OK:
                 res.status(HTTP_STATUS_CODES.HTTP_OK).send({
-                    message: "Information updates successfully."
+                    message: "Information updated successfully."
                 })
+                break;
         }
     } catch (err: unknown) {
         res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
