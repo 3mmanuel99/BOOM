@@ -38,6 +38,8 @@ export class Question {
     // todo: continue this...
     // user auth? (completed, now you need to implement the ability to create questions with user logins)
     // UPDATE: return type is Promise<number> because now we return http status codes
+    // UPDATE 2: I believe you'd need to use user.ts stuff for this to work since
+    // a question needs to be created under a specific user.
     static async createQuestion(_properties: Partial<QuestionInterface>) {
         const questionIdGen = IDGenerators.questionIdGenerator();
         const date = new Date();

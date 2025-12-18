@@ -104,7 +104,7 @@ export class User {
     }
     // note to self: implement updating user (username OR password) and deleting them (needs password auth obviously)
     // note to self: PUT requests either return HTTP status code of 200 (OK) or 204 (no content)
-    static async updateUser(properties: Partial<UserInterface>, option: string) {
+    static async updateUser(properties: Partial<UserInterface>, option: string): Promise<number> {
         const {data} = await queries
             .from("User")
             .select("Username, Password")

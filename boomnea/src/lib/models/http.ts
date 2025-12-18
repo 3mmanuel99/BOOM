@@ -125,7 +125,7 @@ app.post("/api/user/login", async (req: any, res: any) => {
     }
 });
 
-// GET api/user/:userID
+// GET api/user/:username
 app.get("/api/user/:username", async (req: any, res: any) => {
     try {
         const usernameParams: string = req.params["username"];
