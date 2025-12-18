@@ -4,8 +4,8 @@ import { IDGenerators } from "../utility/idGeneration.ts";
 
 enum ChatChannelType {
     CHAT_TYPE_GENERAL = "GENERAL",
-    CHAT_TYPE_TEAM_A = "TEAM A",
-    CHAT_TYPE_TEAM_B = "TEAM B"
+    CHAT_TYPE_TEAM_A = "TEAM_A",
+    CHAT_TYPE_TEAM_B = "TEAM_B"
 }
 
 interface MessageInterface {

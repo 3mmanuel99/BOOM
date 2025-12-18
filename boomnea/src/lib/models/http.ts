@@ -67,7 +67,6 @@ app.get("/api/question/:questionID", async (req: any, res: any) => {
 });
 
 // POST /api/user/register
-// todo: change bad request to CONFLICT
 app.post("/api/user/register", async (req: any, res: any) => {
     try {
         const userRegistration: User = await User.registerUser({
