@@ -3,6 +3,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import { Question } from "./question.ts";
 import { User } from "./user.ts";
+import { Message } from "./message.ts";
 // import { WebSocketServer } from "ws";
 import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
 
@@ -223,5 +224,15 @@ app.delete("/api/user/delete", async (req: any, res: any) => {
         res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
             message: `Internal Server Error! (${error})`
         });
+    }
+})
+
+// POST /api/message/create
+app.post("/api/message/create", async (req: any, res: any) => {
+    try
+    {
+        const messageCreation = await Message.createMessage({
+            
+        })
     }
 })

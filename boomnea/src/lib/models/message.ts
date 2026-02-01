@@ -18,8 +18,10 @@ interface MessageInterface {
 
 export class Message {
     // return type is Promise<string> (?)
-    static async createMessage(message: Partial<MessageInterface>) {
-        const {data} = await queries
+    static async createMessage(message: Partial<MessageInterface>): Promise<string | undefined> {
+
+        const messageIDGen: string = IDGenerators.
+        const {data, error} = await queries
                 .from("Chat")
                 .insert({
                     MessageID: message.messageId,
@@ -27,6 +29,12 @@ export class Message {
                     MessageCreatedAt: message.createdAt,
                     MessageContent: message.msgContent      
                 })
+        if (!error)
+        {
+            return message.msgContent;
+        } else {
+            throw new Error(`${error}`)
+        }
     }
     
 }
