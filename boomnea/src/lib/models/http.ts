@@ -3,7 +3,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import { Question } from "./question.ts";
 import { User } from "./user.ts";
-import { Message } from "./message.ts";
+// import { Message } from "./message.ts";
 // import { WebSocketServer } from "ws";
 import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
 
@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
-const server = app.listen(HTTP_PORT, () => {
+const _server = app.listen(HTTP_PORT, () => {
     console.log(`Now listening on port ${HTTP_PORT}!`);
 });
 
@@ -35,11 +35,6 @@ wss.on("message", (data) => {
 */
 
 
-// GET /
-// please remove this once you are done testing. thank you.
-app.get("/", (_req: any, res: { send: (arg0: string) => void; }) => {
-    res.send("Hello world! (I hope I can complete my coursework on time...)");
-});
 
 // GET api/question/:questionID
 app.get("/api/question/:questionID", async (req: any, res: any) => {
@@ -228,6 +223,7 @@ app.delete("/api/user/delete", async (req: any, res: any) => {
 })
 
 // POST /api/message/create
+/*
 app.post("/api/message/create", async (req: any, res: any) => {
     try
     {
@@ -236,3 +232,4 @@ app.post("/api/message/create", async (req: any, res: any) => {
         })
     }
 })
+*/
