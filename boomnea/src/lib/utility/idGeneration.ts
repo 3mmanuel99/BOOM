@@ -1,61 +1,45 @@
 export class IDGenerators {
-    combination: string;
-    users: string;
-    questions: string;
-    gamecodes: string;
-    messages: string;
+    static readonly combination: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+    static users: string = "US-";
+    static questions: string = "QN-";
+    static gamecodes: string = "BM-";
+    static messages: string = "MS-";
 
-    constructor()
-    {
-        this.combination = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
-        this.users = "US-";
-        this.questions = "QN-";
-        this.gamecodes = "BM-";
-        this.messages = "MS-";
-    }
-
-
-    public questionIdGenerator(): string
-    {
-         
+    private static idGen(): string {
+        let id: string = ""
         for (let i = 0; i < 10; i++)
         {
             /* adding each character from the string into the variable
             the concat function combines multiple characters into a single string
             */
-            this.questions += "".concat(this.combination[Math.floor(Math.random() * this.combination.length)]);
+            id += "".concat(this.combination[Math.floor(Math.random() * this.combination.length)]);
             /* Math.floor() will return a whole number, while Math.random() will return a number between 0 and 1.
             the former is needed as you cannot access a position in an array with a fractional number. the multi-
             plication step comes in as it steps up the range from 0 and 1 to a much larger range, putting it from 0
             to the length of the string combination (62).
             */
         }
-        return this.questions; // returning the id that has been generated
+        return id; // returning the id that has been generated
     }
 
+    static questionIdGenerator(): string
+    {
+        this.questions += this.idGen();
+        return this.questions; 
+    }
 
-    public userIdGeneration(): string {
-        for (let i = 0; i < 10; i++)
-        {
-            this.users += "".concat(this.combination[Math.floor(Math.random() * this.combination.length)]);
-        }
+    static userIdGeneration(): string {
+        this.users += this.idGen();
         return this.users; 
     }
-    public gamecodeIdGeneration(): string {
-      // instead of looping 10 times like we are doing for other id generators, we will be looping only 5 for the convenience of the user(s)
-        for (let i = 0; i < 10; i++)
-        {
-            this.gamecodes += "".concat(this.combination[Math.floor(Math.random() * this.combination.length)])
-        }
-        return this.gamecodes; // returning the gamecode that has been generated
+
+    static gamecodeIdGeneration(): string {
+        this.gamecodes += this.idGen().slice(0, 5)
+        return this.gamecodes; 
     }
 
-    public messageIdGeneration(): string {
-        for (let i = 0; i < 10; i++)
-        {
-            this.messages = "".concat(this.combination[Math.floor(Math.random() * this.combination.length)])
-        }
-
+    static messageIdGeneration(): string {
+        this.messages = this.idGen()
         return this.messages;
     }
 }

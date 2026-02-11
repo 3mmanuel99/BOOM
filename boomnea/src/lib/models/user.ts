@@ -1,3 +1,8 @@
+// TASK (delete when done): add user constraints here
+// resp status code for this is 403 forbidden since the 
+// server will be able to process the request but we must
+// refuse to authorise it if it doesn't meet the constraints
+
 import { queries } from "../database/database.ts";
 import { IDGenerators } from "../utility/idGeneration.ts";
 import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
