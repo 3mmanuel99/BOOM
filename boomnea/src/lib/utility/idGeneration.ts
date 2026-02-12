@@ -39,7 +39,7 @@ export class IDGenerators {
     }
 
     static messageIdGeneration(): string {
-        this.messages = this.idGen()
+        this.messages += this.idGen()
         return this.messages;
     }
 }
