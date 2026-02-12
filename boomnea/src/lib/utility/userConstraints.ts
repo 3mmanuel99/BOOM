@@ -1,8 +1,7 @@
 export class UserConstraints {
 
     static user(username: string) {
-        const usernameRegExReq = new RegExp("^((?=.*[a-z])(?!.[!@#$%^&*])).{3,16}$}");
-
+        const usernameRegExReq = new RegExp("^((?=.*[a-z])(?!.[!@#$%^&*])).{3,16}$");
         return usernameRegExReq.test(username);
     }
     static password(password: string) {

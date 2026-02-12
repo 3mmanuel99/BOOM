@@ -76,15 +76,23 @@ app.post("/api/user/register", async (req: any, res: any) => {
                     error: "User already exists."
                 });
                 break;
+            case HTTP_STATUS_CODES.HTTP_FORBIDDEN:
+                res.status(HTTP_STATUS_CODES.HTTP_FORBIDDEN).send({
+                    error: {
+                        error: "Your username / password does not meet the constraints.",
+                        information: "Your username should be between 3 and 16 characters long, should have at least one lowercase character and should not have any special characters. Your password should be between 8 and 64 characters long, should have at least one uppercase and lowercase letter, should have at least a number and a special character."
+                    }
+                })
+                break;
             case HTTP_STATUS_CODES.HTTP_CREATED:
                 res.status(HTTP_STATUS_CODES.HTTP_CREATED).send({
                     message: "User created successfully."
                 });
                 break;
         }
-    } catch (error: unknown) {
+    } catch (error: any) {
         res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
-            error: `Internal Server Error! ${error}`
+            error: `Internal Server Error! ${error.message}`
         });
     }
 });
@@ -114,9 +122,9 @@ app.post("/api/user/login", async (req: any, res: any) => {
                 });
                 break;
         }
-    } catch (error: unknown) {
+    } catch (error: any) {
         res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
-            error: `Internal Server Error! ${error}`
+            error: `Internal Server Error! ${error.message}`
         });
     }
 });
@@ -141,9 +149,9 @@ app.get("/api/user/:username", async (req: any, res: any) => {
                 });
                 break;
         }
-    } catch (err: unknown) {
+    } catch (error: any) {
         res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
-            error: `Internal Server Error! (${err})`
+            error: `Internal Server Error! (${error.message})`
         });
     }
 });
@@ -176,15 +184,23 @@ app.put("/api/user/update/:option", async (req: any, res: any) => {
                     error: "Invalid option parameter."
                 })
                 break;
+            case HTTP_STATUS_CODES.HTTP_FORBIDDEN:
+                res.status(HTTP_STATUS_CODES.HTTP_FORBIDDEN).send({
+                    error: {
+                        error: "Your new password does not meet the constraints.",
+                        information: "Your password should be between 8 and 64 characters, must have at least one uppercase and one lowercase letter and must have at least one sepcial character."
+                    }
+                })
+                break;
             case HTTP_STATUS_CODES.HTTP_OK:
                 res.status(HTTP_STATUS_CODES.HTTP_OK).send({
                     message: "Information updated successfully."
                 })
                 break;
         }
-    } catch (err: unknown) {
+    } catch (error: any) {
         res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
-            error: `Internal Server Error! (${err})`
+            error: `Internal Server Error! (${error.message})`
         })
     }
 })
@@ -215,9 +231,9 @@ app.delete("/api/user/delete", async (req: any, res: any) => {
                 });
                 break;
         }
-    } catch (error: unknown) {
+    } catch (error: any) {
         res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
-            message: `Internal Server Error! (${error})`
+            message: `Internal Server Error! (${error.message})`
         });
     }
 })

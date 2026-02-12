@@ -6,6 +6,7 @@
 import { queries } from "../database/database.ts";
 import { IDGenerators } from "../utility/idGeneration.ts";
 import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
+import { UserConstraints } from "../utility/userConstraints.ts";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -20,6 +21,10 @@ interface UserInterface {
 
 export class User {
     static async registerUser(properties: Partial<UserInterface>): Promise<number> {
+        if (!UserConstraints.user(String(properties.username)) || !UserConstraints.password(String(properties.password)))
+        {
+            return HTTP_STATUS_CODES.HTTP_FORBIDDEN;
+        }
         const {data} = await queries
             .from("User")
             .select("Username")
@@ -45,7 +50,9 @@ export class User {
             if (!error) {
                 return HTTP_STATUS_CODES.HTTP_CREATED;
             } else {
-                throw new Error(`${error}`)
+                throw {
+                    message: error.message
+                }
             }
         }
     }
@@ -136,6 +143,10 @@ export class User {
                     }
                 }
                 case "password": {
+                    if (!UserConstraints.password(properties.newPassword!))
+                    {
+                        return HTTP_STATUS_CODES.HTTP_FORBIDDEN;
+                    }
                     const salt: string  = await bcrypt.genSalt(10);
                     const hash: string  = await bcrypt.hash(properties.newPassword, salt)
 
@@ -146,7 +157,9 @@ export class User {
                     if (!error) {
                         return HTTP_STATUS_CODES.HTTP_OK;
                     } else {
-                        throw new Error(`${error.message}`)
+                        throw {
+                            message: error.message
+                        }
                     }
                 }
                 default:
@@ -176,7 +189,9 @@ export class User {
                 .delete()
                 .eq("Username", properties.username)
             if (error) {
-                throw new Error(`${error}`);
+                throw {
+                    message: error.message
+                };
             } else {
                 return HTTP_STATUS_CODES.HTTP_OK;
             }

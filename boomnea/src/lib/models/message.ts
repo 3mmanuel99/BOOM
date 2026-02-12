@@ -20,7 +20,7 @@ export class Message {
     // return type is Promise<string> (?)
     static async createMessage(message: Partial<MessageInterface>): Promise<string | undefined> {
 
-        const messageIDGen: string = IDGenerators.
+        const messageIDGen: string = IDGenerators.messageIdGeneration();
         const {data, error} = await queries
                 .from("Chat")
                 .insert({
