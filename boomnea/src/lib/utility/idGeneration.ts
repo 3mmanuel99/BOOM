@@ -34,6 +34,7 @@ export class IDGenerators {
     }
 
     static gamecodeIdGeneration(): string {
+        // slicing for a 5 digit gamecode
         this.gamecodes += this.idGen().slice(0, 5)
         return this.gamecodes; 
     }

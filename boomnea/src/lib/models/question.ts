@@ -1,12 +1,14 @@
-// TASK: finish implementing this
-
 import { queries } from "../database/database.ts";
 import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
 import { IDGenerators } from "../utility/idGeneration.ts";
+import { User } from "./user.ts";
 
 
 interface QuestionInterface {
-    question: string
+    username: string,
+    password: string,
+    question: string,
+    newQuestion: string,
     questionID: string,
     createdByUserID: string,
     phaseNum: number,
@@ -41,24 +43,66 @@ export class Question {
     // UPDATE: return type is Promise<number> because now we return http status codes
     // UPDATE 2: I believe you'd need to use user.ts stuff for this to work since
     // a question needs to be created under a specific user.
-    static async createQuestion(_properties: Partial<QuestionInterface>) {
+    static async createQuestion(properties: Partial<QuestionInterface>): Promise<number> {
         const questionIdGen = IDGenerators.questionIdGenerator();
         const date = new Date();
+        const login: User = await User.loginUser({
+            username: properties.username,
+            password: properties.password
+        });
 
-    
-        // "UGQuestionID, UserID, PhaseNum, QnCreatedAt, Answers, Question"
-        const _questionCreate = await queries
-            .from("UGQuestion")
-            .insert({
-                UGQuestionID: questionIdGen,
-                UserID: "",
-                PhaseNum: "",
-                QnCreatedAt: date,
-                Answers: "",
-                Question: ""
-            }) 
-            
-                 
+        switch (login) {
+            case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
+                return HTTP_STATUS_CODES.HTTP_NOT_FOUND;
+            case HTTP_STATUS_CODES.HTTP_UNAUTHORISED:
+                return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
+            default: {
+                const {data} = await queries
+                            .from("User")
+                            .select(`UserID`)
+                            .eq("Username", properties.username);
+                
+                const {error} = await queries
+                    .from("Question")
+                    .insert({
+                        UGQuestionID: questionIdGen,
+                        UserID: data?.[0].UserID,
+                        PhaseNum: properties.phaseNum,
+                        QnCreatedAt: date,
+                        Answers: properties.options,
+                        Question: properties.question
+                    })
+                if (!error) {
+                    return HTTP_STATUS_CODES.HTTP_CREATED;
+                } else {
+                    throw {
+                        message: error.message
+                    }
+                }
+            }
+
+        }       
+   
+    }
+
+    static async updateQuestion(properties: Partial<QuestionInterface>): Promise<number> {
+        const date = new Date();
+        const login: User = await User.loginUser({
+            username: properties.username,
+            password: properties.password
+        });
+
+        switch (login) {
+            case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
+                return HTTP_STATUS_CODES.HTTP_NOT_FOUND;
+            case HTTP_STATUS_CODES.HTTP_UNAUTHORISED:
+                return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
+            default: {
+               
+            }
+
+        } 
+
     }
 
 }
