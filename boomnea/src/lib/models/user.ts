@@ -52,7 +52,7 @@ export class User {
         }
     }
 
-    static async loginUser(properties: Partial<UserInterface>): Promise<number | string> {
+    static async loginUser(properties: Partial<UserInterface>): Promise<string | number> {
         const {data} = await queries
             .from("User")
             .select(`Username, Password`)

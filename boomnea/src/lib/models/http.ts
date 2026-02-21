@@ -62,6 +62,46 @@ app.get("/api/question/:questionID", async (req: any, res: any) => {
     }
 });
 
+// POST api/question/
+app.post("/api/question/", async (req: any, res: any) => {
+    try {
+        const question: Question = await Question.createQuestion({
+            username: req.body.username,
+            password: req.body.password,
+            question: req.body.question,
+            phaseNum: req.body.phaseNum,
+            options: req.body.options
+        })
+
+        switch (question) {
+            case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
+                res.status(HTTP_STATUS_CODES.HTTP_NOT_FOUND).send({
+                    error: "User does not exist."
+                });
+                break;
+            case HTTP_STATUS_CODES.HTTP_UNAUTHORISED:
+                res.status(HTTP_STATUS_CODES.HTTP_UNAUTHORISED).send({
+                    error: "Invalid password."
+                });
+                break;
+            case HTTP_STATUS_CODES.HTTP_FORBIDDEN:
+                res.status(HTTP_STATUS_CODES.HTTP_FORBIDDEN).send({
+                    error: "The length of your options does not meet the phase constraints."
+                });
+                break;
+            case HTTP_STATUS_CODES.HTTP_CREATED:
+                res.status(HTTP_STATUS_CODES.HTTP_CREATED).send({
+                    message: "Question successfully created!"
+                });
+
+        }
+    } catch (error: any) {
+        res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
+            error: `Internal Server Error! ${error.message}`
+        });
+    }
+})
+
 // POST /api/user/register
 app.post("/api/user/register", async (req: any, res: any) => {
     try {

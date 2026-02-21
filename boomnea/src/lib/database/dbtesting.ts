@@ -1,3 +1,4 @@
+/*
 import { queries } from "./database.ts";
 
 const { data } = await queries
@@ -17,3 +18,11 @@ for (let i = 0; i < data!.length; i++) {
 
 
 console.log(testObj)
+*/
+
+const testobj: object = {
+    name: "Emmanuel",
+    age: 17
+}
+
+console.log(Object.keys(testobj).length)

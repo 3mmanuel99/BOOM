@@ -12,14 +12,38 @@ interface QuestionInterface {
     questionID: string,
     createdByUserID: string,
     phaseNum: number,
+    newPhaseNum: number,
     createdAt: Date,
     options: object
 }
 
+enum NUM_OPTIONS_PHASE {
+    PHASE_1 = 4,
+    PHASE_2 = 5,
+    PHASE_3 = 2,
+    PHASE_4 = 1
+}
+
 export class Question {
+
+    static phaseNumConstraints(phaseNum: number): number | undefined {
+        switch (phaseNum) {
+            case 1:
+                return NUM_OPTIONS_PHASE.PHASE_1;
+            case 2:
+                return NUM_OPTIONS_PHASE.PHASE_2;
+            case 3:
+                return NUM_OPTIONS_PHASE.PHASE_3;
+            case 4:
+                return NUM_OPTIONS_PHASE.PHASE_4;
+            default:
+                return undefined;
+        }
+    }
+    
     static async getQuestion(properties: Partial<QuestionInterface>): Promise<object | number> {
         const {data} = await queries
-            .from("UGQuestion")
+            .from("Question")
             .select("UGQuestionID, UserID, PhaseNum, QnCreatedAt, Question, Answers")
             .eq("UGQuestionID", properties.questionID);  
         // ** if there is a record in the database
@@ -38,18 +62,13 @@ export class Question {
         }
     }
 
-    
-    // todo: continue this...
-    // UPDATE: return type is Promise<number> because now we return http status codes
-    // UPDATE 2: I believe you'd need to use user.ts stuff for this to work since
-    // a question needs to be created under a specific user.
     static async createQuestion(properties: Partial<QuestionInterface>): Promise<number> {
-        const questionIdGen = IDGenerators.questionIdGenerator();
+        const questionIdGen = IDGenerators.questionIdGeneration();
         const date = new Date();
         const login: User = await User.loginUser({
             username: properties.username,
             password: properties.password
-        });
+        });  
 
         switch (login) {
             case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
@@ -57,6 +76,10 @@ export class Question {
             case HTTP_STATUS_CODES.HTTP_UNAUTHORISED:
                 return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
             default: {
+
+                if (Object.keys(properties.options!).length !== this.phaseNumConstraints(properties.phaseNum!)) {
+                    return HTTP_STATUS_CODES.HTTP_FORBIDDEN;
+                }
                 const {data} = await queries
                             .from("User")
                             .select(`UserID`)
@@ -84,25 +107,54 @@ export class Question {
         }       
    
     }
-
+    /*
     static async updateQuestion(properties: Partial<QuestionInterface>): Promise<number> {
         const date = new Date();
-        const login: User = await User.loginUser({
+        const login = await User.loginUser({
             username: properties.username,
             password: properties.password
         });
 
-        switch (login) {
-            case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
-                return HTTP_STATUS_CODES.HTTP_NOT_FOUND;
-            case HTTP_STATUS_CODES.HTTP_UNAUTHORISED:
-                return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
-            default: {
-               
-            }
-
+        if (login == HTTP_STATUS_CODES.HTTP_UNAUTHORISED || login == HTTP_STATUS_CODES.HTTP_NOT_FOUND)
+        {
+            return login;
         } 
 
+        const {data, error} = await queries
+            .from("Question")
+            .select("UserID")
+            .eq("QuestionID", properties.questionID)
+
+        const user = await queries
+            .from("User")
+            .select("UserID")
+            .eq("Username", properties.username)
+
+        if (error) {
+            throw {
+                error: error.message
+            }
+        }
+        if (!data) {
+            return HTTP_STATUS_CODES.HTTP_NOT_FOUND;
+        } 
+
+        if (data?.[0].UserID !== user.data?.[0].UserID)
+        {
+            return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
+        }
+
+        const updates: any = {};
+
+        if (properties.newQuestion) { 
+            updates.Question = properties.newQuestion;
+        }
+        if (properties.phaseNum) {
+            updates.PhaseNum = properties.newPhaseNum;
+        }
+        if (properties.options && properties.options.lengt)
+
     }
+    */
 
 }

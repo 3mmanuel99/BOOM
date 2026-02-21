@@ -1,9 +1,9 @@
 export class IDGenerators {
     static readonly combination: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
-    static users: string = "US-";
-    static questions: string = "QN-";
-    static gamecodes: string = "BM-";
-    static messages: string = "MS-";
+    static USERS: string = "US-";
+    static QUESTIONS: string = "QN-";
+    static GAMECODES: string = "BM-";
+    static MESSAGES: string = "MS-";
 
     private static idGen(): string {
         let id: string = ""
@@ -22,25 +22,25 @@ export class IDGenerators {
         return id; // returning the id that has been generated
     }
 
-    static questionIdGenerator(): string
+    static questionIdGeneration(): string
     {
-        this.questions += this.idGen();
-        return this.questions; 
+        this.QUESTIONS += this.idGen();
+        return this.QUESTIONS; 
     }
 
     static userIdGeneration(): string {
-        this.users += this.idGen();
-        return this.users; 
+        this.USERS += this.idGen();
+        return this.USERS; 
     }
 
     static gamecodeIdGeneration(): string {
         // slicing for a 5 digit gamecode
-        this.gamecodes += this.idGen().slice(0, 5)
-        return this.gamecodes; 
+        this.GAMECODES += this.idGen().slice(0, 5)
+        return this.GAMECODES; 
     }
 
     static messageIdGeneration(): string {
-        this.messages += this.idGen()
-        return this.messages;
+        this.MESSAGES += this.idGen()
+        return this.MESSAGES;
     }
 }
