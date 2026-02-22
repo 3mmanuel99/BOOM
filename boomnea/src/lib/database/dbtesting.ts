@@ -18,7 +18,7 @@ for (let i = 0; i < data!.length; i++) {
 
 
 console.log(testObj)
-*/
+
 
 const testobj: object = {
     name: "Emmanuel",
@@ -26,3 +26,14 @@ const testobj: object = {
 }
 
 console.log(Object.keys(testobj).length)
+*/
+
+class Test {
+    static readonly DATE: Date = new Date();
+
+    static test() {
+        return this.DATE;
+    }
+}
+
+console.log(Test.test());

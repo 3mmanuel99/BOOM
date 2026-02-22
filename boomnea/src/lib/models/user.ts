@@ -15,6 +15,9 @@ interface UserInterface {
 }
 
 export class User {
+    static readonly DATE: Date = new Date();
+    static readonly USER_ID_GENERATION: string = IDGenerators.userIdGeneration();
+
     static async registerUser(properties: Partial<UserInterface>): Promise<number> {
         if (!UserConstraints.user(String(properties.username)) || !UserConstraints.password(String(properties.password)))
         {
@@ -30,17 +33,15 @@ export class User {
         } else {
             const salt: string  = await bcrypt.genSalt(10);
             const hash: string  = await bcrypt.hash(properties.password, salt)
-            const userIDGen: string = IDGenerators.userIdGeneration();
-            const date = new Date();
 
 
             const {error} = await queries
                 .from("User")
                 .insert({
-                    UserID: userIDGen,
+                    UserID: this.USER_ID_GENERATION,
                     Username: properties.username,
                     Password: hash,
-                    CreatedAt: date
+                    CreatedAt: this.DATE
                 });
             if (!error) {
                 return HTTP_STATUS_CODES.HTTP_CREATED;

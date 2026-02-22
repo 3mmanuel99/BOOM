@@ -6,6 +6,7 @@ import { User } from "./user.ts";
 // import { Message } from "./message.ts";
 // import { WebSocketServer } from "ws";
 import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
+import { Console, error } from "node:console";
 
 const HTTP_PORT = 3000;
 const app = express();
@@ -36,7 +37,7 @@ wss.on("message", (data) => {
 
 
 
-// GET api/question/:questionID
+// GET /api/question/:questionID
 app.get("/api/question/:questionID", async (req: any, res: any) => {
     try {
         const questionIDParam: string = req.params["questionID"];
@@ -62,10 +63,10 @@ app.get("/api/question/:questionID", async (req: any, res: any) => {
     }
 });
 
-// POST api/question/
-app.post("/api/question/", async (req: any, res: any) => {
+// POST /api/question/create
+app.post("/api/question/create", async (req: any, res: any) => {
     try {
-        const question: Question = await Question.createQuestion({
+        const questionCreate: Question = await Question.createQuestion({
             username: req.body.username,
             password: req.body.password,
             question: req.body.question,
@@ -73,7 +74,7 @@ app.post("/api/question/", async (req: any, res: any) => {
             options: req.body.options
         })
 
-        switch (question) {
+        switch (questionCreate) {
             case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
                 res.status(HTTP_STATUS_CODES.HTTP_NOT_FOUND).send({
                     error: "User does not exist."
@@ -86,7 +87,7 @@ app.post("/api/question/", async (req: any, res: any) => {
                 break;
             case HTTP_STATUS_CODES.HTTP_FORBIDDEN:
                 res.status(HTTP_STATUS_CODES.HTTP_FORBIDDEN).send({
-                    error: "The length of your options does not meet the phase constraints."
+                    error: "Your options does not meet the phase number constraints."
                 });
                 break;
             case HTTP_STATUS_CODES.HTTP_CREATED:
@@ -94,6 +95,51 @@ app.post("/api/question/", async (req: any, res: any) => {
                     message: "Question successfully created!"
                 });
 
+        }
+    } catch (error: any) {
+        res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
+            error: `Internal Server Error! ${error.message}`
+        });
+    }
+})
+
+// PUT /api/question/update
+app.put("/api/question/update", async (req: any, res: any) => {
+    try {
+        const questionUpdate: Question = await Question.updateQuestion({
+            username: req.body.username, 
+            password: req.body.password,
+            questionID: req.body.questionID,
+            Question: req.body.newQuestion,
+            Answers: req.body.newOptions,
+            PhaseNum: req.body.newPhaseNum
+        });
+        switch (questionUpdate)
+        {
+            case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
+                res.status(HTTP_STATUS_CODES.HTTP_NOT_FOUND).send({
+                    error: "User or question not found."
+                });
+                break;
+            case HTTP_STATUS_CODES.HTTP_UNAUTHORISED:
+                res.status(HTTP_STATUS_CODES.HTTP_UNAUTHORISED).send({
+                    error: "Invalid password."
+                });
+                break;
+            case HTTP_STATUS_CODES.HTTP_FORBIDDEN:
+                res.status(HTTP_STATUS_CODES.HTTP_FORBIDDEN).send({
+                    error: "Your options do not meet the phase number constraints."
+                });
+                break;
+            case HTTP_STATUS_CODES.HTTP_BAD_REQUEST:
+                res.status(HTTP_STATUS_CODES.HTTP_BAD_REQUEST).send({
+                    error: "Bad request."
+                });
+                break;
+            case HTTP_STATUS_CODES.HTTP_OK:
+                res.status(HTTP_STATUS_CODES.HTTP_OK).send({
+                    message: "Information updated successfully."
+                });
         }
     } catch (error: any) {
         res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({

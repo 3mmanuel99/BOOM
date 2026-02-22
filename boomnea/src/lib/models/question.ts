@@ -1,3 +1,4 @@
+import { prependOnceListener } from "node:process";
 import { queries } from "../database/database.ts";
 import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
 import { IDGenerators } from "../utility/idGeneration.ts";
@@ -8,13 +9,14 @@ interface QuestionInterface {
     username: string,
     password: string,
     question: string,
-    newQuestion: string,
+    Question: string,
     questionID: string,
     createdByUserID: string,
     phaseNum: number,
-    newPhaseNum: number,
+    PhaseNum: number,
     createdAt: Date,
-    options: object
+    options: object,
+    Answers: object
 }
 
 enum NUM_OPTIONS_PHASE {
@@ -25,6 +27,9 @@ enum NUM_OPTIONS_PHASE {
 }
 
 export class Question {
+
+    static readonly DATE: Date = new Date();
+    static readonly QUESTION_ID_GENERATION: string = IDGenerators.questionIdGeneration();
 
     static phaseNumConstraints(phaseNum: number): number | undefined {
         switch (phaseNum) {
@@ -63,8 +68,6 @@ export class Question {
     }
 
     static async createQuestion(properties: Partial<QuestionInterface>): Promise<number> {
-        const questionIdGen = IDGenerators.questionIdGeneration();
-        const date = new Date();
         const login: User = await User.loginUser({
             username: properties.username,
             password: properties.password
@@ -88,10 +91,10 @@ export class Question {
                 const {error} = await queries
                     .from("Question")
                     .insert({
-                        UGQuestionID: questionIdGen,
+                        UGQuestionID: this.QUESTION_ID_GENERATION,
                         UserID: data?.[0].UserID,
                         PhaseNum: properties.phaseNum,
-                        QnCreatedAt: date,
+                        QnCreatedAt: this.DATE,
                         Answers: properties.options,
                         Question: properties.question
                     })
@@ -107,54 +110,89 @@ export class Question {
         }       
    
     }
-    /*
+
     static async updateQuestion(properties: Partial<QuestionInterface>): Promise<number> {
-        const date = new Date();
         const login = await User.loginUser({
             username: properties.username,
             password: properties.password
         });
 
-        if (login == HTTP_STATUS_CODES.HTTP_UNAUTHORISED || login == HTTP_STATUS_CODES.HTTP_NOT_FOUND)
+        switch (login)
         {
-            return login;
-        } 
+            case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
+                return HTTP_STATUS_CODES.HTTP_NOT_FOUND;
+            case HTTP_STATUS_CODES.HTTP_UNAUTHORISED:
+                return HTTP_STATUS_CODES.HTTP_UNAUTHORISED
+            default: {
 
-        const {data, error} = await queries
-            .from("Question")
-            .select("UserID")
-            .eq("QuestionID", properties.questionID)
+                const user = await queries
+                    .from("User")
+                    .select("UserID")
+                    .eq("Username", properties.username)
 
-        const user = await queries
-            .from("User")
-            .select("UserID")
-            .eq("Username", properties.username)
+                const {data} = await queries
+                    .from("Question")
+                    .select("Question, Answers, PhaseNum, UserID")
+                    .eq("UGQuestionID", properties.questionID)
 
-        if (error) {
-            throw {
-                error: error.message
+                if (data?.[0].UserID !== user.data?.[0].UserID) {
+                    return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
+                }
+
+                if (!data) {
+                    return HTTP_STATUS_CODES.HTTP_NOT_FOUND;
+                }
+
+                const updates: any = {};
+
+                if (properties.Question) {
+                    updates.Question = properties.Question;
+                }
+                if (properties.PhaseNum !== undefined && properties.Answers !== undefined) {
+                    if (this.phaseNumConstraints(properties.PhaseNum) !== Object.keys(properties.Answers).length)
+                    {
+                        return HTTP_STATUS_CODES.HTTP_FORBIDDEN;
+                    }
+                    updates.PhaseNum = properties.PhaseNum;
+                    updates.Answers = properties.Answers;
+                    
+                }
+                if (properties.PhaseNum === undefined && properties.Answers !== undefined)
+                {
+                    updates.Answers = properties.Answers;
+                }
+                if (properties.PhaseNum !== undefined && properties.Answers === undefined)
+                {
+                    updates.PhaseNum = properties.PhaseNum;
+                }
+                if (properties.PhaseNum === undefined && properties.Answers === undefined)
+                {
+                    if (properties.Question === undefined)
+                    {
+                        return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
+                    }
+                }
+
+
+                if (Object.keys(updates).length == 0)
+                {
+                    return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
+                }
+
+                const {error} = await queries
+                    .from("Question")
+                    .update(updates)
+                    .eq("UGQuestionID", properties.questionID)
+                if (!error) {
+                    return HTTP_STATUS_CODES.HTTP_OK;
+                } else {
+                    throw {
+                        message: error.message
+                    }
+                }
+                
             }
         }
-        if (!data) {
-            return HTTP_STATUS_CODES.HTTP_NOT_FOUND;
-        } 
-
-        if (data?.[0].UserID !== user.data?.[0].UserID)
-        {
-            return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
-        }
-
-        const updates: any = {};
-
-        if (properties.newQuestion) { 
-            updates.Question = properties.newQuestion;
-        }
-        if (properties.phaseNum) {
-            updates.PhaseNum = properties.newPhaseNum;
-        }
-        if (properties.options && properties.options.lengt)
-
     }
-    */
 
 }
