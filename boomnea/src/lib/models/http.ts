@@ -148,6 +148,40 @@ app.put("/api/question/update", async (req: any, res: any) => {
     }
 })
 
+// DELETE /api/question/delete
+app.delete("/api/question/delete", async (req: any, res: any) => {
+    try {
+
+        const questionDelete = await Question.deleteQuestion({
+            username: req.body.username,
+            password: req.body.password,
+            questionID: req.body.questionID
+        });
+
+        switch (questionDelete) {
+            case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
+                res.status(HTTP_STATUS_CODES.HTTP_NOT_FOUND).send({
+                    error: "User not found."
+                });
+                break;
+            case HTTP_STATUS_CODES.HTTP_UNAUTHORISED:
+                res.status(HTTP_STATUS_CODES.HTTP_UNAUTHORISED).send({
+                    error: "Invalid password or you do not own this question."
+                });
+                break;
+            case HTTP_STATUS_CODES.HTTP_OK:
+                res.status(HTTP_STATUS_CODES.HTTP_OK).send({
+                    message: "Question deleted successfully."
+                });
+                break;
+        }
+    } catch (error: any) {
+        res.status(HTTP_STATUS_CODES.HTTP_INTERNAL_SERVER_ERROR).send({
+            error: `Internal Server Error! ${error}`
+        });
+    }
+})
+
 // POST /api/user/register
 app.post("/api/user/register", async (req: any, res: any) => {
     try {
@@ -242,7 +276,7 @@ app.get("/api/user/:username", async (req: any, res: any) => {
     }
 });
 
-// PUT /api/user/update
+// PUT /api/user/update/:option
 app.put("/api/user/update/:option", async (req: any, res: any) => {
     try {
         const option: string = req.params["option"];

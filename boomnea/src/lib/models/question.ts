@@ -195,4 +195,47 @@ export class Question {
         }
     }
 
+    static async deleteQuestion(properties: Partial<QuestionInterface>): Promise<number> {
+        const login = await User.loginUser({
+            username: properties.username,
+            password: properties.password
+        })
+
+        switch (login) {
+            case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
+                return HTTP_STATUS_CODES.HTTP_NOT_FOUND;
+            case HTTP_STATUS_CODES.HTTP_UNAUTHORISED:
+                return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
+            default: {
+                const {data} = await queries
+                    .from("User")
+                    .select("UserID")
+                    .eq("Username", properties.username)
+
+                 const question = await queries
+                    .from("Question")
+                    .select("Question, Answers, PhaseNum, UserID")
+                    .eq("UGQuestionID", properties.questionID)
+
+                if (data?.[0].UserID !== question.data?.[0].UserID) {
+                    return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
+                }
+
+                const {error} = await queries
+                    .from("Question")
+                    .delete()
+                    .eq("UGQuestionID", properties.questionID)
+                if (!error) {
+                    return HTTP_STATUS_CODES.HTTP_OK;
+                } else {
+                    throw {
+                        error: error.message
+                    }
+                }
+
+                
+            }
+        }
+    }
+
 }
