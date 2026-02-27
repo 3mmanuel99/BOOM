@@ -6,7 +6,6 @@ import { User } from "./user.ts";
 // import { Message } from "./message.ts";
 // import { WebSocketServer } from "ws";
 import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
-import { Console, error } from "node:console";
 
 const HTTP_PORT = 3000;
 const app = express();
@@ -87,7 +86,7 @@ app.post("/api/question/create", async (req: any, res: any) => {
                 break;
             case HTTP_STATUS_CODES.HTTP_FORBIDDEN:
                 res.status(HTTP_STATUS_CODES.HTTP_FORBIDDEN).send({
-                    error: "Your options does not meet the phase number constraints."
+                    error: "Your options does not meet the phase number constraints or your answer options have at least one property which is not boolean, or one or more of them are true."
                 });
                 break;
             case HTTP_STATUS_CODES.HTTP_CREATED:
@@ -123,7 +122,7 @@ app.put("/api/question/update", async (req: any, res: any) => {
                 break;
             case HTTP_STATUS_CODES.HTTP_UNAUTHORISED:
                 res.status(HTTP_STATUS_CODES.HTTP_UNAUTHORISED).send({
-                    error: "Invalid password."
+                    error: "Invalid password or nothing to update has been filled."
                 });
                 break;
             case HTTP_STATUS_CODES.HTTP_FORBIDDEN:

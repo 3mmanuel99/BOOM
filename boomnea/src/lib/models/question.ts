@@ -1,4 +1,3 @@
-import { prependOnceListener } from "node:process";
 import { queries } from "../database/database.ts";
 import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
 import { IDGenerators } from "../utility/idGeneration.ts";
@@ -87,6 +86,24 @@ export class Question {
                             .from("User")
                             .select(`UserID`)
                             .eq("Username", properties.username);
+
+                if (properties.options === undefined) {
+                    return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
+                } 
+
+                let trueCount: number = 0;
+                for (const [_key, value] of Object.entries(properties.options)) {
+                    if (typeof value !== "boolean") {
+                        return HTTP_STATUS_CODES.HTTP_FORBIDDEN;
+                    }
+                    if (value == true)
+                    {
+                        trueCount++;
+                        if (trueCount > 1) {
+                            return HTTP_STATUS_CODES.HTTP_FORBIDDEN;
+                        }
+                    }
+                }
                 
                 const {error} = await queries
                     .from("Question")
@@ -143,6 +160,7 @@ export class Question {
                     return HTTP_STATUS_CODES.HTTP_NOT_FOUND;
                 }
 
+                // deno-lint-ignore no-explicit-any
                 const updates: any = {};
 
                 if (properties.Question) {

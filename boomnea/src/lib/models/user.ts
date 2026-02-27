@@ -94,9 +94,9 @@ export class User {
             };
 
             const questionInfo = await queries
-                .from("UGQuestion")
-                .select("UGQuestionID, Question, PhaseNumber, CreatedAt, Option")
-                .eq("CreatedBy", data?.[0].UserID)
+                .from("Question")
+                .select("UGQuestionID, Question, PhaseNum, UserID, Answers, QnCreatedAt")
+                .eq("UserID", data?.[0].UserID)
 
             if (questionInfo.data) {
                 for (let idx = 0; idx < questionInfo.data!.length; idx++) {
