@@ -41,7 +41,7 @@ export class Question {
             case 4:
                 return NUM_OPTIONS_PHASE.PHASE_4;
             default:
-                return undefined;
+                return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
         }
     }
     

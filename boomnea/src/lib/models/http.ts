@@ -79,6 +79,11 @@ app.post("/api/question/create", async (req: any, res: any) => {
                     error: "User does not exist."
                 });
                 break;
+            case HTTP_STATUS_CODES.HTTP_BAD_REQUEST:
+                res.status(HTTP_STATUS_CODES.HTTP_BAD_REQUEST).send({
+                    error: "Bad request."
+                });
+                break;
             case HTTP_STATUS_CODES.HTTP_UNAUTHORISED:
                 res.status(HTTP_STATUS_CODES.HTTP_UNAUTHORISED).send({
                     error: "Invalid password."
