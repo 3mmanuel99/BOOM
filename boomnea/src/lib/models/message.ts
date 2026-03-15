@@ -1,3 +1,5 @@
+// message.ts
+
 import { queries } from "../database/database.ts";
 import { IDGenerators } from "../utility/idGeneration.ts";
 
@@ -17,7 +19,7 @@ interface MessageInterface {
 }
 
 export class Message {
-    // return type is Promise<string> (?)
+    // creates a message
     static async createMessage(message: Partial<MessageInterface>): Promise<string | undefined> {
 
         const messageIDGen: string = IDGenerators.messageIdGeneration();

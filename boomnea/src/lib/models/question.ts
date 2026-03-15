@@ -1,3 +1,5 @@
+// question.ts
+
 import { queries } from "../database/database.ts";
 import { HTTP_STATUS_CODES } from "../utility/httpStatusCodes.ts";
 import { IDGenerators } from "../utility/idGeneration.ts";
@@ -18,6 +20,7 @@ interface QuestionInterface {
     Answers: object
 }
 
+// all the phases for the game
 enum NUM_OPTIONS_PHASE {
     PHASE_1 = 4,
     PHASE_2 = 5,
@@ -30,6 +33,8 @@ export class Question {
     static readonly DATE: Date = new Date();
     static readonly QUESTION_ID_GENERATION: string = IDGenerators.questionIdGeneration();
 
+
+    // return using the enum to prevent magic numbers within the code
     static phaseNumConstraints(phaseNum: number): number | undefined {
         switch (phaseNum) {
             case 1:
@@ -45,6 +50,7 @@ export class Question {
         }
     }
     
+    // fetches a question created by a user
     static async getQuestion(properties: Partial<QuestionInterface>): Promise<object | number> {
         const {data} = await queries
             .from("Question")
@@ -66,6 +72,7 @@ export class Question {
         }
     }
 
+    // allows the user to create a question
     static async createQuestion(properties: Partial<QuestionInterface>): Promise<number> {
         const login: User = await User.loginUser({
             username: properties.username,
@@ -91,8 +98,10 @@ export class Question {
                     return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
                 } 
 
+
                 let trueCount: number = 0;
                 for (const [_key, value] of Object.entries(properties.options)) {
+                    // checking if the data type inputted is not a boolean
                     if (typeof value !== "boolean") {
                         return HTTP_STATUS_CODES.HTTP_FORBIDDEN;
                     }
@@ -127,7 +136,8 @@ export class Question {
         }       
    
     }
-
+    
+    // allows a user to update a question
     static async updateQuestion(properties: Partial<QuestionInterface>): Promise<number> {
         const login = await User.loginUser({
             username: properties.username,
@@ -152,6 +162,7 @@ export class Question {
                     .select("Question, Answers, PhaseNum, UserID")
                     .eq("UGQuestionID", properties.questionID)
 
+                // checking if the user owns the question or not
                 if (data?.[0].UserID !== user.data?.[0].UserID) {
                     return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
                 }
@@ -163,6 +174,7 @@ export class Question {
                 // deno-lint-ignore no-explicit-any
                 const updates: any = {};
 
+                // checking what was actually update (question, phaseNum, Answers)
                 if (properties.Question) {
                     updates.Question = properties.Question;
                 }
@@ -191,7 +203,7 @@ export class Question {
                     }
                 }
 
-
+                // if nothing was updated whatsoever
                 if (Object.keys(updates).length == 0)
                 {
                     return HTTP_STATUS_CODES.HTTP_BAD_REQUEST;
@@ -212,7 +224,8 @@ export class Question {
             }
         }
     }
-
+    
+    // allows the user to delete a question
     static async deleteQuestion(properties: Partial<QuestionInterface>): Promise<number> {
         const login = await User.loginUser({
             username: properties.username,
@@ -220,6 +233,7 @@ export class Question {
         })
 
         switch (login) {
+            // an initial query is made and if the user is not found (or any other error is returned, it's passed to http.ts)
             case HTTP_STATUS_CODES.HTTP_NOT_FOUND:
                 return HTTP_STATUS_CODES.HTTP_NOT_FOUND;
             case HTTP_STATUS_CODES.HTTP_UNAUTHORISED:
@@ -235,6 +249,7 @@ export class Question {
                     .select("Question, Answers, PhaseNum, UserID")
                     .eq("UGQuestionID", properties.questionID)
 
+                // checking if the user owns the question
                 if (data?.[0].UserID !== question.data?.[0].UserID) {
                     return HTTP_STATUS_CODES.HTTP_UNAUTHORISED;
                 }

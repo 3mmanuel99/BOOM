@@ -1,3 +1,5 @@
+// httpStatusCodes.ts
+
 export enum HTTP_STATUS_CODES {
     HTTP_OK = 200,
     HTTP_CREATED = 201,

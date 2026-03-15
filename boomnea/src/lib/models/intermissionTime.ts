@@ -1,3 +1,6 @@
+// intermissionTime.ts
+
+// sleeps for a certain amount of time (asyncrhonous so an independent process)
 async function sleep(milliseconds: number): Promise<void> 
 {
     /* promises handle asynchronous operations. 

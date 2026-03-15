@@ -1,3 +1,5 @@
+// idGenerators.ts
+
 export class IDGenerators {
     static readonly combination: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
     static USERS: string = "US-";

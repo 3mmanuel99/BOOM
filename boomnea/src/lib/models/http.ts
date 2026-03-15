@@ -1,3 +1,9 @@
+// http.ts
+
+// Libraries used:
+// Express: https://www.npmjs.com/package/express
+// Body Parser: https://www.npmjs.com/package/body-parser
+
 // deno-lint-ignore-file no-explicit-any
 import express from "express";
 import bodyParser from "body-parser";
@@ -34,7 +40,7 @@ wss.on("message", (data) => {
 })
 */
 
-
+// every endpoint here that has a request body will pass it onto a function from a class
 
 // GET /api/question/:questionID
 app.get("/api/question/:questionID", async (req: any, res: any) => {
